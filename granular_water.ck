@@ -48,7 +48,7 @@ SndBuf water7 => Envelope waterEnv7 => waterGain;
 .3  => water7.gain;
 
 
-// load the file
+// load files
 waterFile1 => water1.read;
 waterFile2 => water2.read;
 waterFile3 => water3.read;
