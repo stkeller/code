@@ -71,7 +71,7 @@ def tweetSearch():
       ser.write("H")
       msg1.append(0)
       client.sendto(msg1, ('127.0.0.1', 9000))
-    else:
+    elif time[0] > time[1]:
       print 1
       print "L"
       ser.write("L")
