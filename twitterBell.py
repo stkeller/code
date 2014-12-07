@@ -76,7 +76,7 @@ def tweetSearch():
       print "L"
       ser.write("L")
       msg1.append(1)
-client.sendto(msg1, ('127.0.0.1', 9000))
+      client.sendto(msg1, ('127.0.0.1', 9000))
   except IndexError:
    print "Error. Sending default value"
    msg1.append(0)
