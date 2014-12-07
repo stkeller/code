@@ -10,7 +10,7 @@ msg2 = OSC.OSCMessage()
 msg1.setAddress("/twitterMood")
 msg2.setAddress("/twitter123")
 
-#Setting up Twitter API
+#Setup Twitter API
 api = twitter.Api(
  consumer_key='E2w45rhbrqTRl2CDnox3yhgZF',
  consumer_secret='HRsIfkvqMvx0cqaDT7sNCLoy22FAq7rIdqc2eEvBfyTLlthNFs',
