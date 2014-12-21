@@ -12,10 +12,10 @@ msg2.setAddress("/twitter123")
 
 #Setup Twitter API
 api = twitter.Api(
- consumer_key='E2w45rhbrqTRl2CDnox3yhgZF',
- consumer_secret='HRsIfkvqMvx0cqaDT7sNCLoy22FAq7rIdqc2eEvBfyTLlthNFs',
- access_token_key='52897427-UpH5Hqwk4UH2GPR9P0li199fg84UzQUgAs3QTIAhe',
- access_token_secret='uZXntodQQYZuRhq8YIs8WywPNmVAkLWavUiX5J4z2CGBm'
+ consumer_key='XXXX',
+ consumer_secret='XXXX',
+ access_token_key='XXXX',
+ access_token_secret='XXXX'
  )
 
 def tweetSearch():
