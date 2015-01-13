@@ -46,15 +46,15 @@ fun float minVal( float dataArray[] )
 // Find Maximun Value
 fun float maxVal( float dataArray[] )
 {
-    dataArray[0] => float minimum;
+    dataArray[0] => float maximun;
     for( 1 => int i; i < dataArray.cap(); i++ )
     {
         if( minimum < dataArray[i] )
         {
-            dataArray[i] => minimum;
+            dataArray[i] => maximun;
         }
     }
-    return minimum;
+    return maximun;
 }
 // Data Normalization
 fun float arrayNormalization( string dataName,float dataArray[], float oldMin,
