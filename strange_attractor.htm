@@ -8,6 +8,10 @@
 <canvas id="Canvas" width="800" height="600" style="border:1px solid #c3c3c3;">
 </canvas>
 <br>
+Red: <input type="text" id="redVar" value="0">
+Green: <input type="text" id="greenVar" value="0">
+Blue: <input type="text" id="blueVar" value="0">
+<br>
 a: <input type="text" id="varA" value="-2.4">
 b: <input type="text" id="varB" value="1.6">
 <br>
@@ -88,7 +92,7 @@ d: <input type="text" id="varD" value="0.7">
 		for(i = 0; i < iterations; i++)
 		{
 			// Normalization Equation (newvalue = (max'-min')/(max-min)*(value-max)+max')
-			newValues.push((normalizedMax - normalizedMin) / (maximum - minimum) * (valueArray[i] - maximum) + normalizedMax)
+		newValues.push((normalizedMax - normalizedMin) / (maximum - minimum) * (valueArray[i] - maximum) + normalizedMax)
 		}
 		return newValues;
 	}
@@ -104,43 +108,51 @@ d: <input type="text" id="varD" value="0.7">
 		var d = updatedVariables[3];
 		
 		normalizedXY = [normalize(attractor(a,b,c,d, x,y, iterations)[0],
-				minVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
-				maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
-				0,newXpos, iterations),
-				normalize(attractor(a,b,c,d, x,y, iterations)[1],
-				minVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
-				maxVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
-				0,newYpos, iterations)];
+						minVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+						maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+						0,newXpos, iterations),
+						normalize(attractor(a,b,c,d, x,y, iterations)[1],
+						minVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+						maxVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+						0,newYpos, iterations)];
 				
 		console.log(normalizedXY);
-				
+		/*		
 		rgbArray = [normalize(attractor(a,b,c,d, x,y, iterations)[0],
-			minVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
-			maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
-			0,255, iterations),
-			normalize(attractor(a,b,c,d, x,y, iterations)[1],
-			minVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
-			maxVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
-			0,255, iterations),
-			normalize(attractor(a,b,c,d, x,y, iterations)[0],
-			minVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
-			maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
-			0,255, iterations)];
+					minVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+					maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+					0,255, iterations),
+					normalize(attractor(a,b,c,d, x,y, iterations)[1],
+					minVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+					maxVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+					0,255, iterations),
+					normalize(attractor(a,b,c,d, x,y, iterations)[0],
+					minVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+					maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+					0,255, iterations)];
 							
 		console.log(rgbArray);
+		*/
 	}
 	
 	//Plot the points
 	function draw(){
-		var c = document.getElementById("Canvas");
-		var ctx = c.getContext("2d");
+		//Get RGB values
+		var red = document.getElementById("redVar").value;
+		var green = document.getElementById("greenVar").value;
+		var blue = document.getElementById("blueVar").value;
+		
+		var c=document.getElementById("Canvas");
+		var ctx=c.getContext("2d");
+		//Clear screen before plotting new points
 		ctx.clearRect(0, 0, newXpos, newYpos);
+		
 		for(i = 0; i < iterations; i++)
-		{		
+		{				
 			ctx.beginPath();
 			ctx.arc(normalizedXY[0][i],normalizedXY[1][i],1,0,360);
 			ctx.fill();
-			ctx.fillStyle = 'rgba(0,0,0, .25)';
+			ctx.fillStyle = 'rgba('+ red +','+ green +',' + blue + ', .25)';
 			ctx.closePath();
 		}
 	}
