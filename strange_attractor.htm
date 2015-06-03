@@ -132,8 +132,8 @@ d: <input type="text" id="varD" value="0.7">
 	
 	//Plot the points
 	function draw(){
-		var c=document.getElementById("Canvas");
-		var ctx=c.getContext("2d");
+		var c = document.getElementById("Canvas");
+		var ctx = c.getContext("2d");
 		ctx.clearRect(0, 0, newXpos, newYpos);
 		for(i = 0; i < iterations; i++)
 		{		
@@ -155,10 +155,10 @@ d: <input type="text" id="varD" value="0.7">
 		var updatedValues = [];
 		//Print updated a,b,c,d values to console
 		console.log("updated");
-		console.log(updateA);
-		console.log(updateB);
-		console.log(updateC);
-		console.log(updateD);
+		console.log("a: " + updateA);
+		console.log("b: " + updateB);
+		console.log("c: " + updateC);
+		console.log("d: " + updateD);
 		updatedValues.push(updateA, updateB, updateC, updateD);
 		return updatedValues;
 	}
