@@ -1,0 +1,177 @@
+<head>
+</head>
+
+<html>
+<body>
+
+<center>
+<canvas id="Canvas" width="800" height="600" style="border:1px solid #c3c3c3;">
+</canvas>
+<br>
+a: <input type="text" id="varA" value="-2.4">
+b: <input type="text" id="varB" value="1.6">
+<br>
+c: <input type="text" id="varC" value="1">
+d: <input type="text" id="varD" value="0.7">
+<br>
+<button onclick="updateProgram()">Calculate</button>
+</center>
+
+
+<script language='JavaScript'>
+
+	// Initial Variables
+	var iterations = 30000;
+	var newXpos = 800;
+	var newYpos = 600;
+	
+	var x = 0;
+	var y = 0.1;
+	
+	// Define Functions
+	
+	// Strange Attractor Function
+	function attractor(a,b,c,d, x,y, iterations)
+	{
+		
+		var xnew;
+		var ynew;
+		
+		var xValues = [x];
+		var yValues = [y];
+		
+		for(i = 0; i < iterations; i++)
+		{
+			xnew = Math.sin(a*y) + c * Math.cos(a*x);
+			ynew = Math.sin(b*x) + d * Math.cos(b*y);
+			x = xnew;
+			y = ynew;
+			
+			xValues.push(x);
+			yValues.push(y);
+		}
+		xyArrays = [xValues, yValues];
+		return xyArrays;
+	}
+	
+	// Find Maximum Value on Array Function
+	function maxVal(arrayInit, array, iterations)
+	{
+		var max = arrayInit;
+		for(i = 0; i < iterations; i++)
+		{
+			if (array[i] > max)
+			{
+				max = array[i];
+			}
+		}
+		return max;
+	}
+	// Find Minimum Value on Array Function
+	function minVal(arrayInit, array, iterations)
+	{
+		var min = arrayInit;
+		for(i = 0; i < iterations; i++)
+		{
+			if (array[i] < min)
+			{
+				min = array[i];
+			}
+		}
+		return min;
+	}
+	
+	//Normalize Values Function
+	function normalize(valueArray, minimum, maximum, normalizedMin, normalizedMax, iterations)
+	{
+		var newValues = [];
+		for(i = 0; i < iterations; i++)
+		{
+			// Normalization Equation (newvalue = (max'-min')/(max-min)*(value-max)+max')
+		newValues.push((normalizedMax - normalizedMin) / (maximum - minimum) * (valueArray[i] - maximum) + normalizedMax)
+		}
+		return newValues;
+	}
+
+	//Normalize X and Y position values and Calculate the Attractor Equation
+	function calculateAttractor()
+	{
+		var updatedVariables = update();
+		
+		var a = updatedVariables[0];
+		var b = updatedVariables[1];
+		var c = updatedVariables[2];
+		var d = updatedVariables[3];
+		
+		normalizedXY = [normalize(attractor(a,b,c,d, x,y, iterations)[0],
+						minVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+						maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+						0,newXpos, iterations),
+						normalize(attractor(a,b,c,d, x,y, iterations)[1],
+						minVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+						maxVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+						0,newYpos, iterations)];
+				
+		console.log(normalizedXY);
+				
+		rgbArray = [normalize(attractor(a,b,c,d, x,y, iterations)[0],
+					minVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+					maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+					0,255, iterations),
+					normalize(attractor(a,b,c,d, x,y, iterations)[1],
+					minVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+					maxVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+					0,255, iterations),
+					normalize(attractor(a,b,c,d, x,y, iterations)[0],
+					minVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+					maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+					0,255, iterations)];
+							
+		console.log(rgbArray);
+	}
+	
+	//Plot the points
+	function draw(){
+		var c=document.getElementById("Canvas");
+		var ctx=c.getContext("2d");
+		ctx.clearRect(0, 0, newXpos, newYpos);
+		for(i = 0; i < iterations; i++)
+		{		
+			ctx.beginPath();
+			ctx.arc(normalizedXY[0][i],normalizedXY[1][i],1,0,360);
+			ctx.fill();
+			ctx.fillStyle = 'rgba(0,0,0, .25)';
+			ctx.closePath();
+		}
+	}
+	
+	// Update Values Function
+	function update()
+	{
+		var updateA = document.getElementById("varA").value;
+		var updateB = document.getElementById("varB").value;
+		var updateC = document.getElementById("varC").value;
+		var updateD = document.getElementById("varD").value;
+		var updatedValues = [];
+		//Print updated a,b,c,d values to console
+		console.log("updated");
+		console.log(updateA);
+		console.log(updateB);
+		console.log(updateC);
+		console.log(updateD);
+		updatedValues.push(updateA, updateB, updateC, updateD);
+		return updatedValues;
+	}
+	
+	// Update Program Function. Called every time the button is pressed
+	function updateProgram()
+	{	
+		update();
+		calculateAttractor();
+		draw();
+	}
+	
+</script>
+
+</body>
+</html>
