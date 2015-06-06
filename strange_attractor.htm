@@ -108,28 +108,28 @@ d: <input type="text" id="varD" value="0.7">
 		var d = updatedVariables[3];
 		
 		normalizedXY = [normalize(attractor(a,b,c,d, x,y, iterations)[0],
-						minVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
-						maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
-						0,newXpos, iterations),
-						normalize(attractor(a,b,c,d, x,y, iterations)[1],
-						minVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
-						maxVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
-						0,newYpos, iterations)];
+				minVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+				maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+				0,newXpos, iterations),
+				normalize(attractor(a,b,c,d, x,y, iterations)[1],
+				minVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+				maxVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+				0,newYpos, iterations)];
 				
 		console.log(normalizedXY);
 		/*		
 		rgbArray = [normalize(attractor(a,b,c,d, x,y, iterations)[0],
-					minVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
-					maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
-					0,255, iterations),
-					normalize(attractor(a,b,c,d, x,y, iterations)[1],
-					minVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
-					maxVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
-					0,255, iterations),
-					normalize(attractor(a,b,c,d, x,y, iterations)[0],
-					minVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
-					maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
-					0,255, iterations)];
+				minVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+				maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+				0,255, iterations),
+				normalize(attractor(a,b,c,d, x,y, iterations)[1],
+				minVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+				maxVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+				0,255, iterations),
+				normalize(attractor(a,b,c,d, x,y, iterations)[0],
+				minVal(attractor(a,b,c,d, x,y, iterations)[1][0], attractor(a,b,c,d, x,y, iterations)[1], iterations),
+				maxVal(attractor(a,b,c,d, x,y, iterations)[0][0], attractor(a,b,c,d, x,y, iterations)[0], iterations),
+				0,255, iterations)];
 							
 		console.log(rgbArray);
 		*/
