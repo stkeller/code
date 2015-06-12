@@ -1,0 +1,235 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Sequencer</title>
+        <script src="flocking-all.js"></script>
+    </head>
+
+    <body>
+        <center>
+		<br><br><br><br>
+		<button id="playPauseButton" onclick='playPause()'>Play/Pause</button>
+		<br><br>
+		Bass Mode
+		<br>
+		<input id="bassMode" type="checkbox" name="bassMode" value="bassMode">
+		<br><br>
+		Bass Sequencer
+		<br>
+		<input id="bass1" type="checkbox" name="bass1" value="bass1">
+		<input id="bass2" type="checkbox" name="bass2" value="bass2">
+		<input id="bass3" type="checkbox" name="bass3" value="bass3">
+		<input id="bass4" type="checkbox" name="bass4" value="bass4">
+		<input id="bass5" type="checkbox" name="bass5" value="bass5">
+		<input id="bass6" type="checkbox" name="bass6" value="bass6">
+		<input id="bass7" type="checkbox" name="bass7" value="bass7">
+		<input id="bass8" type="checkbox" name="bass8" value="bass8">
+		</center>
+
+        <script>
+            // Create a Flocking environment
+			var enviro = flock.init();
+			
+			// Toggle Bass Mode
+			var bassToggle = "flock.ugen.saw";
+			document.getElementById("bassMode").onclick = function()
+			{
+				if(this.checked === false)
+				{
+					console.log("Bass Mode 1: Saw");
+					bassToggle = "flock.ugen.saw"
+					return bassToggle;
+				}
+				if(this.checked === true)
+				{
+					console.log("Bass Mode 2: Square");
+					bassToggle = "flock.ugen.square";
+					return bassToggle;
+				}
+			}
+			
+			// Create Saw Synth (BASS)			
+			var bassSynth = flock.synth({
+				synthDef: 
+				{
+					id: "mainOSC",
+					ugen: bassToggle,
+					freq: 
+					{
+						id: "bassSeq",
+						ugen: "flock.ugen.sequence",
+						freq: 1/4,
+						loop: 1,
+						list: [mtof(44), mtof(39), mtof(48)]
+					},
+					mul: {
+						ugen: "flock.ugen.asr",
+						start: 0.0,
+						attack: 0.1,
+						sustain: 1,
+						release: 0.5,
+						gate:
+						{
+							ugen: "flock.ugen.impulse",
+							rate: "control",
+							freq: 1,
+							phase: 5.0
+						}
+					}
+				}				
+			});
+			var bassSubSynth = flock.synth({
+				synthDef: 
+				{
+					id: "subOSC",
+					ugen: bassToggle,
+					freq: 
+					{
+						id: "bassSeq",
+						ugen: "flock.ugen.sequence",
+						freq: 1/4,
+						loop: 1,
+						list: [mtof(noteDown(48, "fifth")),mtof(noteDown(48, "fifth")),mtof(noteDown(48, "fifth")),
+								mtof(noteDown(44, "fifth")),mtof(noteDown(39, "fifth")),mtof(noteDown(44, "octave"))]
+					},
+					mul: {
+						ugen: "flock.ugen.asr",
+						start: 0.0,
+						attack: 0.1,
+						sustain: 1,
+						release: 0.5,
+						gate:
+						{
+							ugen: "flock.ugen.impulse",
+							rate: "control",
+							freq: 1,
+							phase: 5.0
+						}
+					}
+				}				
+			});
+			
+			var bassSynth = flock.synth({
+				synthDef: [
+				{
+					id: "drone",
+					ugen: "flock.ugen.saw",
+					freq: mtof(20),
+					mul: 0.15
+				},
+				{
+					id: "drone",
+					ugen: "flock.ugen.saw",
+					freq: noteDown(mtof(20),"fifth"),
+					mul: 0.15
+				}]
+			});
+			//Drums 
+			// Kick Drum
+			var kickDrum = flock.synth({
+				synthDef:
+				{
+					id: "kickDrum",
+					ugen: "flock.ugen.playBuffer",
+					mul: 2,
+					buffer:
+						{
+							id: "kickDrumBuffer",
+							url: "audio/kick.wav"
+						},
+					trigger:
+						{
+							id: "kickSeq",
+							ugen: "flock.ugen.sequence",
+							freq: 1,
+							loop: 1,
+							list: [1,0,1,0, 1,0,0,1]
+						}
+				}
+			});
+			// HiHat Drum
+			var hihatDrum = flock.synth({
+				synthDef:
+				{
+					id: "hihatDrum",
+					ugen: "flock.ugen.playBuffer",
+					mul: 1,
+					buffer:
+						{
+							id: "hihatDrumBuffer",
+							url: "audio/hihat.wav"
+						},
+					trigger:
+						{
+							id: "hihatSeq",
+							ugen: "flock.ugen.impulse",
+							freq: 1*2,
+							loop: 1,
+							//list: [1,1,1,1, 1,1,1,1]
+						}
+				}
+			});
+			// Snare Drum
+			var snareDrum = flock.synth({
+				synthDef:
+				{
+					id: "snareDrum",
+					ugen: "flock.ugen.playBuffer",
+					mul: 1.5,
+					buffer:
+						{
+							id: "snareDrumBuffer",
+							url: "audio/snare.wav"
+						},
+					trigger:
+						{
+							id: "snareSeq",
+							ugen: "flock.ugen.sequence",
+							loop: 1,
+							freq: 1,
+							list: [0,1,0,1, 0,1,0,1]
+						}
+				}
+			});
+			
+			
+			// Midi to Frequency Function
+			function mtof(midiNote)
+			{
+				// Based on standard A = 440hz tuning
+				var frequency = Math.pow(2, (midiNote-69)/12) * 440;
+				return frequency;
+			}
+			
+			// Note Down function for suboscillator
+			function noteDown(value, interval)
+			{
+				if(interval == "octave"){
+					return value - 12;
+				}
+				if(interval == "fifth"){
+					return value - 5;
+				}
+			}
+						
+			
+			// Start/Stop Flocking Environment
+			var runState = "off";
+			function playPause()
+			{
+				if(runState == "off")
+				{
+					console.log("Start Flocking");
+					enviro.start();
+					runState = "on";
+				}
+				else if(runState == "on")
+				{
+					console.log("Stop Flocking")
+					enviro.stop();
+					runState = "off";
+				}
+			}
+        </script>
+    </body>
+</html>
