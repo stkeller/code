@@ -9,7 +9,7 @@
         <center>
 		<br><br><br><br>
 		<button id="playPauseButton" onclick='playPause()'>Play/Pause</button>
-		<br><br>
+		<br><br><br><br>
 		Bass Mode
 		<br>
 		<input id="bassMode" type="checkbox" name="bassMode" value="bassMode">
@@ -20,110 +20,320 @@
 		<input id="bass2" type="checkbox" name="bass2" value="bass2">
 		<input id="bass3" type="checkbox" name="bass3" value="bass3">
 		<input id="bass4" type="checkbox" name="bass4" value="bass4">
+		<br>
 		<input id="bass5" type="checkbox" name="bass5" value="bass5">
 		<input id="bass6" type="checkbox" name="bass6" value="bass6">
 		<input id="bass7" type="checkbox" name="bass7" value="bass7">
 		<input id="bass8" type="checkbox" name="bass8" value="bass8">
+		<br><br>
+		Bass MIDI Note Values:
+		<br>
+		<input type="text" id="bassNote1" value="44" size="1">
+		<input type="text" id="bassNote2" value="44" size="1">
+		<input type="text" id="bassNote3" value="44" size="1">
+		<input type="text" id="bassNote4" value="44" size="1">
+		<br>
+		<input type="text" id="bassNote5" value="44" size="1">
+		<input type="text" id="bassNote6" value="44" size="1">
+		<input type="text" id="bassNote7" value="44" size="1">
+		<input type="text" id="bassNote8" value="44" size="1">
+		<br><br>
+		<button onclick="update()">Update Sequencer</button>
 		</center>
 
         <script>
             // Create a Flocking environment
 			var enviro = flock.init();
 			
+			
 			// Toggle Bass Mode
-			var bassToggle = "flock.ugen.saw";
 			document.getElementById("bassMode").onclick = function()
 			{
 				if(this.checked === false)
 				{
 					console.log("Bass Mode 1: Saw");
-					bassToggle = "flock.ugen.saw"
-					return bassToggle;
+					droneSynth1.set({"drone.mul": .025});
+					droneSynth2.set({"drone.mul": 0});
+					
+					bassSynthSaw.set({"mainOSC.mul.attack": 0.05, "mainOSC.mul.sustain": 0.35, "mainOSC.mul.release": 0.6});
+					bassSubSynthSaw.set({"subOSC.mul.attack": 0.05, "subOSC.mul.sustain": 0.35, "subOSC.mul.release": 0.6});
+					bassSynthSquare.set({"mainOSC.mul.attack": 0.0, "mainOSC.mul.sustain": 0.0, "mainOSC.mul.release": 0.0});
+					bassSubSynthSquare.set({"subOSC.mul.attack": 0.0, "subOSC.mul.sustain": 0.0, "subOSC.mul.release": 0.0});
 				}
 				if(this.checked === true)
 				{
 					console.log("Bass Mode 2: Square");
-					bassToggle = "flock.ugen.square";
-					return bassToggle;
+					droneSynth1.set({"drone.mul": 0});
+					droneSynth2.set({"drone.mul": .025});
+					
+					bassSynthSaw.set({"mainOSC.mul.attack": 0.0, "mainOSC.mul.sustain": 0.0, "mainOSC.mul.release": 0.0});
+					bassSubSynthSaw.set({"subOSC.mul.attack": 0.0, "subOSC.mul.sustain": 0.0, "subOSC.mul.release": 0.0});
+					bassSynthSquare.set({"mainOSC.mul.attack": 0.05, "mainOSC.mul.sustain": 0.35, "mainOSC.mul.release": 0.6});
+					bassSubSynthSquare.set({"subOSC.mul.attack": 0.05, "subOSC.mul.sustain": 0.35, "subOSC.mul.release": 0.6});
 				}
 			}
+			// Drone Synth
+			var droneSynth1 = flock.synth({
+				synthDef:
+				{
+					id: "drone",
+					ugen: "flock.ugen.saw",
+					freq: mtof(84),
+					mul: .025
+				}
+			});
+			var droneSynth2 = flock.synth({
+				synthDef:
+				{
+					id: "drone",
+					ugen: "flock.ugen.square",
+					freq: mtof(84),
+					mul: 0
+				}
+			});
 			
-			// Create Saw Synth (BASS)			
-			var bassSynth = flock.synth({
+			
+			// Bass Sequencer Variables
+			var bassStepVal = [false, false, false, false, false, false, false, false];
+			// Get Step 1
+			document.getElementById("bass1").onclick = function()
+			{	if(this.checked === false)	{
+					console.log("Bass Step 1: Unchecked");
+					bassStepVal[0] = false;	}
+				if(this.checked === true)	{
+					console.log("Bass Step 1: Checked");
+					bassStepVal[0] = true;	}}
+			// Get Step 2
+			document.getElementById("bass2").onclick = function()
+			{	if(this.checked === false)	{
+					console.log("Bass Step 2: Unchecked");
+					bassStepVal[1] = false;	}
+				if(this.checked === true)	{
+					console.log("Bass Step 2: Checked");
+					bassStepVal[1] = true;	}}
+			// Get Step 3
+			document.getElementById("bass3").onclick = function()
+			{	if(this.checked === false)	{
+					console.log("Bass Step 3: Unchecked");
+					bassStepVal[2] = false;	}
+				if(this.checked === true)	{
+					console.log("Bass Step 3: Checked");
+					bassStepVal[2] = true;	}}
+			// Get Step 4
+			document.getElementById("bass4").onclick = function()
+			{	if(this.checked === false)	{
+					console.log("Bass Step 4: Unchecked");
+					bassStepVal[3] = false;	}
+				if(this.checked === true)	{
+					console.log("Bass Step 4: Checked");
+					bassStepVal[3] = true;	}}
+			// Get Step 5
+			document.getElementById("bass5").onclick = function()
+			{	if(this.checked === false)	{
+					console.log("Bass Step 5: Unchecked");
+					bassStepVal[4] = false;	}
+				if(this.checked === true)	{
+					console.log("Bass Step 5: Checked");
+					bassStepVal[4] = true;	}}
+			// Get Step 6
+			document.getElementById("bass6").onclick = function()
+			{	if(this.checked === false)	{
+					console.log("Bass Step 6: Unchecked");
+					bassStepVal[5] = false;	}
+				if(this.checked === true)	{
+					console.log("Bass Step 6: Checked");
+					bassStepVal[5] = true;	}}
+			// Get Step 7
+			document.getElementById("bass7").onclick = function()
+			{	if(this.checked === false)	{
+					console.log("Bass Step 7: Unchecked");
+					bassStepVal[6] = false;	}
+				if(this.checked === true)	{
+					console.log("Bass Step 7: Checked");
+					bassStepVal[6] = true;	}}
+			// Get Step 8
+			document.getElementById("bass8").onclick = function()
+			{	if(this.checked === false)	{
+					console.log("Bass Step 8: Unchecked");
+					bassStepVal[7] = false;	}
+				if(this.checked === true)	{
+					console.log("Bass Step 8: Checked");
+					bassStepVal[7] = true;	}}
+			
+			// Function Updates Sequencer Values
+			console.log(bassStepVal);
+			function update()
+			{
+				var bassMidi1 = document.getElementById("bassNote1").value;
+				var bassMidi2 = document.getElementById("bassNote2").value;
+				var bassMidi3 = document.getElementById("bassNote3").value;
+				var bassMidi4 = document.getElementById("bassNote4").value;
+				var bassMidi5 = document.getElementById("bassNote5").value;
+				var bassMidi6 = document.getElementById("bassNote6").value;
+				var bassMidi7 = document.getElementById("bassNote7").value;
+				var bassMidi8 = document.getElementById("bassNote8").value;
+				
+				var newStepVal = [bassMidi1, bassMidi2, bassMidi3, bassMidi4, 
+								bassMidi5, bassMidi6, bassMidi7, bassMidi8];
+								
+				console.log("Sequencer Steps: " + bassStepVal);
+				for(i = 0; i < 8; i++)
+				{
+					if(bassStepVal[i] == true)
+					{
+						newStepVal[i] = newStepVal[i];
+					}
+					else if(bassStepVal[i] == false)
+					{
+						newStepVal[i] = 0;
+					}
+				}
+				bassSynthSaw.set({"mainBassSeq.list":
+										[mtof(newStepVal[0]), mtof(newStepVal[1]), mtof(newStepVal[2]), mtof(newStepVal[3]),
+										 mtof(newStepVal[4]), mtof(newStepVal[5]), mtof(newStepVal[6]), mtof(newStepVal[7])]
+							  			});
+				bassSubSynthSaw.set({"subBassSeq.list":
+										[mtof(noteDown(newStepVal[0], "fifth")), mtof(noteDown(newStepVal[1], "fifth")),
+										 mtof(noteDown(newStepVal[2], "fifth")), mtof(noteDown(newStepVal[3], "fifth")),
+										 mtof(noteDown(newStepVal[4], "octave")), mtof(noteDown(newStepVal[5], "octave")),
+										 mtof(noteDown(newStepVal[6], "octave")), mtof(noteDown(newStepVal[7], "octave"))]
+										});
+										
+				bassSynthSquare.set({"mainBassSeq.list":
+										[mtof(newStepVal[0]), mtof(newStepVal[1]), mtof(newStepVal[2]), mtof(newStepVal[3]),
+										 mtof(newStepVal[4]), mtof(newStepVal[5]), mtof(newStepVal[6]), mtof(newStepVal[7])]
+							  			});
+				bassSubSynthSquare.set({"subBassSeq.list":
+										[mtof(noteDown(newStepVal[0], "fifth")), mtof(noteDown(newStepVal[1], "fifth")),
+										 mtof(noteDown(newStepVal[2], "fifth")), mtof(noteDown(newStepVal[3], "fifth")),
+										 mtof(noteDown(newStepVal[4], "octave")), mtof(noteDown(newStepVal[5], "octave")),
+										 mtof(noteDown(newStepVal[6], "octave")), mtof(noteDown(newStepVal[7], "octave"))]
+										});
+			}
+			
+			// Saw Synth (BASS)			
+			var bassSynthSaw = flock.synth({
 				synthDef: 
 				{
 					id: "mainOSC",
-					ugen: bassToggle,
+					ugen: "flock.ugen.saw",
 					freq: 
 					{
-						id: "bassSeq",
+						id: "mainBassSeq",
 						ugen: "flock.ugen.sequence",
-						freq: 1/4,
+						freq: 2,
 						loop: 1,
-						list: [mtof(44), mtof(39), mtof(48)]
+						list: [mtof(0), mtof(0), mtof(0), mtof(0),
+						       mtof(0), mtof(0), mtof(0), mtof(0)]
 					},
 					mul: {
 						ugen: "flock.ugen.asr",
 						start: 0.0,
-						attack: 0.1,
-						sustain: 1,
-						release: 0.5,
+						attack: 0.05,
+						sustain: .35,
+						release: .6,
 						gate:
 						{
 							ugen: "flock.ugen.impulse",
 							rate: "control",
-							freq: 1,
-							phase: 5.0
+							freq: 2,
+							phase: 1.0
 						}
 					}
 				}				
 			});
-			var bassSubSynth = flock.synth({
+			var bassSubSynthSaw = flock.synth({
 				synthDef: 
 				{
 					id: "subOSC",
-					ugen: bassToggle,
+					ugen: "flock.ugen.saw",
 					freq: 
 					{
-						id: "bassSeq",
+						id: "subBassSeq",
 						ugen: "flock.ugen.sequence",
-						freq: 1/4,
+						freq: 2,
 						loop: 1,
-						list: [mtof(noteDown(48, "fifth")),mtof(noteDown(48, "fifth")),mtof(noteDown(48, "fifth")),
-								mtof(noteDown(44, "fifth")),mtof(noteDown(39, "fifth")),mtof(noteDown(44, "octave"))]
+						list: [mtof(noteDown(0, "fifth")),mtof(noteDown(0, "fifth")),mtof(noteDown(0, "fifth")), mtof(noteDown(0, "fifth")),
+							   mtof(noteDown(0, "octave")),mtof(noteDown(0, "octave")),mtof(noteDown(0, "octave")),mtof(noteDown(0, "octave"))]
 					},
 					mul: {
 						ugen: "flock.ugen.asr",
 						start: 0.0,
-						attack: 0.1,
-						sustain: 1,
-						release: 0.5,
+						attack: 0.05,
+						sustain: .35,
+						release: .6,
 						gate:
 						{
 							ugen: "flock.ugen.impulse",
 							rate: "control",
-							freq: 1,
-							phase: 5.0
+							freq: 2,
+							phase: 1.0
+						}
+					}
+				}				
+			});
+			// Square Synth (BASS)			
+			var bassSynthSquare = flock.synth({
+				synthDef: 
+				{
+					id: "mainOSC",
+					ugen: "flock.ugen.square",
+					freq: 
+					{
+						id: "mainBassSeq",
+						ugen: "flock.ugen.sequence",
+						freq: 2,
+						loop: 1,
+						list: [mtof(0), mtof(0), mtof(0), mtof(0),
+						       mtof(0), mtof(0), mtof(0), mtof(0)]
+					},
+					mul: {
+						ugen: "flock.ugen.asr",
+						start: 0.0,
+						attack: 0.0,
+						sustain: 0.0,
+						release: 0.0,
+						gate:
+						{
+							ugen: "flock.ugen.impulse",
+							rate: "control",
+							freq: 2,
+							phase: 1.0
+						}
+					}
+				}				
+			});
+			var bassSubSynthSquare = flock.synth({
+				synthDef: 
+				{
+					id: "subOSC",
+					ugen: "flock.ugen.square",
+					freq: 
+					{
+						id: "subBassSeq",
+						ugen: "flock.ugen.sequence",
+						freq: 2,
+						loop: 1,
+						list: [mtof(noteDown(0, "fifth")),mtof(noteDown(0, "fifth")),mtof(noteDown(0, "fifth")), mtof(noteDown(0, "fifth")),
+							   mtof(noteDown(0, "octave")),mtof(noteDown(0, "octave")),mtof(noteDown(0, "octave")),mtof(noteDown(0, "octave"))]
+					},
+					mul: {
+						ugen: "flock.ugen.asr",
+						start: 0.0,
+						attack: 0.0,
+						sustain: 0.0,
+						release: 0.0,
+						gate:
+						{
+							ugen: "flock.ugen.impulse",
+							rate: "control",
+							freq: 2,
+							phase: 1.0
 						}
 					}
 				}				
 			});
 			
-			var bassSynth = flock.synth({
-				synthDef: [
-				{
-					id: "drone",
-					ugen: "flock.ugen.saw",
-					freq: mtof(20),
-					mul: 0.15
-				},
-				{
-					id: "drone",
-					ugen: "flock.ugen.saw",
-					freq: noteDown(mtof(20),"fifth"),
-					mul: 0.15
-				}]
-			});
 			//Drums 
 			// Kick Drum
 			var kickDrum = flock.synth({
@@ -191,7 +401,6 @@
 						}
 				}
 			});
-			
 			
 			// Midi to Frequency Function
 			function mtof(midiNote)
