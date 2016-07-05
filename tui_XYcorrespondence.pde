@@ -88,3 +88,4 @@ void draw()
             stationSorted.append( int(markerPosXY[int(activeStations.get(i))][2]) );
     } } } }
   }
+}
