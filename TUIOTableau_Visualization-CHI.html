@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TUIO Tableau</title>
+	<script src="libs/jquery-1.7.2.js"></script>
+    <script src="libs/lodash.js"></script>
+    <script src="libs/socket.io.js"></script>
+	<script src="libs/Tuio.min.js"></script>
+	<script src="https://public.tableau.com/javascripts/api/tableau-2.js"></script>
+	
+	<script>
+		// Initialize Variables
+		var posXThreshold = 0.2;
+		var posYThreshold = 0;
+		var angleThreshold = 3.14;
+		
+		var viz;
+		var tableauLoaded = false;
+		
+		var activeTokens = [];
+		var activeIndustries = [];
+		var activeCountries = [];
+		var activePopulations = [];
+		
+		// function called by viz on marks being selected in the workbook
+		function onMarksSelection(marksEvent) {
+		  return marksEvent.getMarksAsync().then(reportSelectedMarks);
+		}
+		
+		function reportSelectedMarks(marks) {	
+			for (var markIndex = 0; markIndex < marks.length; markIndex++) {
+				var pairs = marks[markIndex].getPairs();
+				
+				for (var pairIndex = 0; pairIndex < pairs.length; pairIndex++) {
+					var pair = pairs[pairIndex];
+					var infoDiv = document.getElementById('markDetails');
+					infoDiv.innerHTML = "Current selected population is " + pair.formattedValue;
+				}
+			}
+		}
+			
+		// Load Tableau Visualization
+        window.onload = function() {
+            var containerDiv = document.getElementById("vizContainer"),
+                url = "http://public.tableau.com/views/UN_employmentFormatted/EmploymentBarViz",
+                options = {
+                    "Industry": ["none"],
+					"Age Group": ["none"],
+					"Country": ["none"],
+					hideTabs: true,
+					hideToolbar: true,
+					onFirstInteractive: function(){
+							tableauLoaded = true;
+							tuioStart();
+						}
+					}
+            viz = new tableauSoftware.Viz(containerDiv, url, options);
+        }
+		
+		// Token:Filter dictionary
+		var tokenClass = [
+								//Measure 1\\
+							 //Industries
+							 {"Id":0,  "isActive":false, "tokenDict":"Agriculture", 			  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":1,  "isActive":false, "tokenDict":"Arts/Entertainment", 		  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":2,  "isActive":false, "tokenDict":"Construction", 			  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":3,  "isActive":false, "tokenDict":"Financial", 				  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":4,  "isActive":false, "tokenDict":"Information/Communication", "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":5,  "isActive":false, "tokenDict":"Manufacturing", 			  "xPos":0, "yPos":0, "rotation":0},
+								//Measure 2\\
+							 //Country
+							 {"Id":6,  "isActive":false, "tokenDict":"Brasil",				 	  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":7,  "isActive":false, "tokenDict":"Canada",					  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":8,  "isActive":false, "tokenDict":"Germany",					  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":9,  "isActive":false, "tokenDict":"Japan", 					  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":10, "isActive":false, "tokenDict":"Portugal", 				  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":11, "isActive":false, "tokenDict":"South Korea",				  "xPos":0, "yPos":0, "rotation":0},
+								//Measure 3\\
+							 //Age Group
+							 {"Id":12, "isActive":false, "tokenDict":"Age Group 01",			  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":13, "isActive":false, "tokenDict":"Age Group 02",			  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":14, "isActive":false, "tokenDict":"Age Group 03", 		   	  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":15, "isActive":false, "tokenDict":"Age Group 04", 			  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":16, "isActive":false, "tokenDict":"Age Group 05", 			  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":17, "isActive":false, "tokenDict":"Age Group 06", 			  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":18, "isActive":false, "tokenDict":"Age Group 07", 			  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":19, "isActive":false, "tokenDict":"Age Group 08", 			  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":20, "isActive":false, "tokenDict":"Age Group 09", 			  "xPos":0, "yPos":0, "rotation":0},
+						 //Visualizations
+							 {"Id":21, "isActive":false, "tokenDict":"EmploymentBarViz",		  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":22, "isActive":false, "tokenDict":"EmploymentTreeViz",		  "xPos":0, "yPos":0, "rotation":0},
+							 {"Id":23, "isActive":false, "tokenDict":"EmploymentMapViz", 	   	  "xPos":0, "yPos":0, "rotation":0}
+						 ];
+		
+        function tuioStart (){
+			var client = new Tuio.Client({
+				host: "http://localhost:5000"
+			}),
+			///////////////
+			// Add Token //
+			///////////////
+			onAddTuioObject = function(addObject) {
+				if(tableauLoaded == true){
+					var tokenID = addObject.symbolId;
+					var tokenX = addObject.xPos;
+					var tokenY = addObject.yPos;
+					var tokenRotation = addObject.angle;
+					sheet = viz.getWorkbook().getActiveSheet();
+					console.log("Token added " + tokenID);
+					
+					// Update tokenClass
+					tokenClass[tokenID].isActive = true;
+					tokenClass[tokenID].xPos = addObject.xPos;
+					tokenClass[tokenID].yPos = addObject.yPos;
+					tokenClass[tokenID].rotation = addObject.angle;
+					// Add Id to array
+					activeTokens.push(tokenID);
+					console.log(activeTokens);
+					
+					// Switch Tableau Visualization
+					if(tokenID >= 21 && tokenID <= 23){
+						workBook = viz.getWorkbook();
+						workBook.activateSheetAsync(tokenClass[tokenID].tokenDict);
+						//Reset filters
+						setTimeout(function(){
+							sheet = viz.getWorkbook().getActiveSheet();
+							// Reset Age Groups
+							sheet.getWorksheets()[0].applyFilterAsync("Age Group", "none" , "REPLACE");
+							for(var i = 0; i < activePopulations.length; i++){
+								sheet.getWorksheets()[0].applyFilterAsync("Age Group", tokenClass[activePopulations[i]].tokenDict , "ADD");
+							}
+							// Reset Industries
+							sheet.getWorksheets()[0].applyFilterAsync("Industry", "none" , "REPLACE");
+							for(var i = 0; i < activeIndustries.length; i++){
+								sheet.getWorksheets()[0].applyFilterAsync("Industry", tokenClass[activeIndustries[i]].tokenDict , "ADD");
+							}
+							// Reset Countries
+							sheet.getWorksheets()[0].applyFilterAsync("Country", "none" , "REPLACE");
+							for(var i = 0; i < activeCountries.length; i++){
+								sheet.getWorksheets()[0].applyFilterAsync("Country", tokenClass[activeCountries[i]].tokenDict , "ADD");
+							}
+						}, 1000);
+					}
+					
+					// Add Tableau filter and Mark Highlight
+					if(tokenID <= 5){
+						activeIndustries.push(tokenID);
+						sheet.getWorksheets()[0].applyFilterAsync("Industry", tokenClass[tokenID].tokenDict , "ADD");
+						if (tokenX < posXThreshold){
+							sheet.getWorksheets()[0].selectMarksAsync("Industry", tokenClass[tokenID].tokenDict, "ADD");
+						}
+					}
+					if(tokenID >= 6 && tokenID <= 11){
+						activeCountries.push(tokenID);
+						sheet.getWorksheets()[0].applyFilterAsync("Country", tokenClass[tokenID].tokenDict , "ADD");
+						if (tokenX < posXThreshold){
+							sheet.getWorksheets()[0].selectMarksAsync("Country", tokenClass[tokenID].tokenDict, "ADD");
+						}
+					}
+					if(tokenID >= 12 && tokenID <= 20){
+						activePopulations.push(tokenID);
+						sheet.getWorksheets()[0].applyFilterAsync("Age Group", tokenClass[tokenID].tokenDict , "ADD");
+						if (tokenX < posXThreshold){
+							sheet.getWorksheets()[0].selectMarksAsync("Age Group", tokenClass[tokenID].tokenDict, "ADD");
+							if(tokenRotation < angleThreshold){
+								// Add Population event listener
+								var currentCountry;
+								var currentIndustry;
+								var subdivisionCountry = 1/activeCountries.length;
+								var couuntryMinRange;
+
+								viz.addEventListener(tableauSoftware.TableauEventName.MARKS_SELECTION, onMarksSelection);
+								//console.log(tokenClass[activeCountries[1]].tokenDict);
+								//var subdivisionCountry = 1/activeCountries.length;
+								activeCountries.sort(function(a, b){return a-b});
+								for (var i=0; i<activeCountries.length; i++){
+									if ((tokenY < (i+1)/activeCountries.length) && (tokenY > i/activeCountries.length)){
+										currentCountry = tokenClass[activeCountries[i]].tokenDict;
+										couuntryMinRange = i/activeCountries.length;
+									}
+								}
+								activeIndustries.sort(function(a, b){return a-b});
+								for (var i=0; i < activeIndustries.length; i++){
+									if ((tokenY < ( ( (i+1)*subdivisionCountry) / activeIndustries.length)+couuntryMinRange) && (tokenY > ( (i*subdivisionCountry)/activeIndustries.length)+couuntryMinRange) ){
+										currentIndustry = tokenClass[activeIndustries[i]].tokenDict;
+									}
+								}
+								
+								sheet.getWorksheets()[0].selectMarksAsync( {"Age Group": tokenClass[tokenID].tokenDict, 
+																			"Industry": currentIndustry,
+																			"Country": currentCountry },
+																							"REPLACE");
+							}
+							else{
+								
+								viz.removeEventListener(tableauSoftware.TableauEventName.MARKS_SELECTION, onMarksSelection);
+								var infoDiv = document.getElementById('markDetails');
+								infoDiv.innerHTML = "";
+							}
+						}	
+					}
+				}
+			},
+			
+			//////////////////
+			// Update Token //
+			//////////////////
+			onUpdateTuioObject = function(updateObject) {
+				//console.log(updateObject);
+				var tokenID = updateObject.symbolId;
+				var tokenX = updateObject.xPos;
+				var tokenY = updateObject.yPos;
+				var tokenRotation = updateObject.angle;
+				sheet = viz.getWorkbook().getActiveSheet();
+				
+				// Update tokenClass
+				tokenClass[tokenID].xPos = updateObject.xPos;
+				tokenClass[tokenID].yPos = updateObject.YPos;
+				tokenClass[tokenID].rotation = updateObject.angle;
+			},
+			
+			//////////////////
+			// Remove Token //
+			//////////////////
+			onRemoveTuioObject = function(removeObject) {
+				var tokenID = removeObject.symbolId;
+				var tokenX = removeObject.xPos;
+				var tokenY = removeObject.yPos;
+				var tokenRotation = removeObject.angle;
+				sheet = viz.getWorkbook().getActiveSheet();
+				//console.log("Token removed " + tokenID);
+				
+				// Update tokenClass
+				tokenClass[tokenID].isActive = false;
+				tokenClass[tokenID].xPos = 0;
+				tokenClass[tokenID].yPos = 0;
+				tokenClass[tokenID].rotation = 0;
+				
+				// Remove Id from array
+				var index = activeTokens.indexOf(removeObject.symbolId);
+				activeTokens.splice(index, 1);
+				console.log(activeTokens);
+				
+				// Remove Tableau filter
+				if(tokenID <= 5){
+					var index = activeIndustries.indexOf(removeObject.symbolId);
+					activeIndustries.splice(index, 1);
+					sheet.getWorksheets()[0].applyFilterAsync("Industry", tokenClass[tokenID].tokenDict , "REMOVE");
+				}
+				if(tokenID >= 6 && tokenID <= 11){
+					var index = activeCountries.indexOf(removeObject.symbolId);
+					activeCountries.splice(index, 1);
+					sheet.getWorksheets()[0].applyFilterAsync("Country", tokenClass[tokenID].tokenDict , "REMOVE");
+				}
+				if(tokenID >= 12 && tokenID <= 20){
+					var index = activePopulations.indexOf(removeObject.symbolId);
+					activePopulations.splice(index, 1);
+					sheet.getWorksheets()[0].applyFilterAsync("Age Group", tokenClass[tokenID].tokenDict , "REMOVE");
+				}
+				
+				// Reset DIV
+				if( (tokenID >= 12 && tokenID <= 20) && (tokenX < posXThreshold)){
+						sheet.getWorksheets()[0].selectMarksAsync("Age Group", tokenClass[tokenID].tokenDict, "ADD");
+						if(tokenRotation < angleThreshold){
+							var infoDiv = document.getElementById('markDetails');
+							infoDiv.innerHTML = "";
+						}
+						else{
+							viz.removeEventListener(tableauSoftware.TableauEventName.MARKS_SELECTION, onMarksSelection);
+							var infoDiv = document.getElementById('markDetails');
+							infoDiv.innerHTML = "";
+						}
+					}
+			},
+
+			onRefresh = function(time) {
+			  //console.log(time);
+			};
+
+			client.on("addTuioObject", onAddTuioObject);
+			client.on("updateTuioObject", onUpdateTuioObject);
+			client.on("removeTuioObject", onRemoveTuioObject);
+			client.on("refresh", onRefresh);
+			client.connect();
+		}
+				
+    </script>
+
+    <style>
+    	#markDetails {
+    		float: left;
+    		background-color: rgb(60,60,60);
+    		color: #ffffff;
+    		width:100%;
+    		padding-top: 20px;
+    		height: 60px;
+    		text-align: center;
+    	}
+
+    	#vizContainer {
+    		float:left;
+    		width:100%;
+    		height: auto;
+    	}
+
+    </style>
+	
+</head>
+
+<body>
+	<div id="markDetails"></div>
+	<br>
+	<div id="vizContainer"></div>
+</body>
+
+</html>
