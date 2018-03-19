@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TUIO Time</title>
+	<script src="libs/jquery-1.7.2.js"></script>
+    <script src="libs/lodash.js"></script>
+    <script src="libs/socket.io.js"></script>
+	<script src="libs/Tuio.min.js"></script>
+	
+	<script>
+		// Initialize Variables		
+		var activeTokens = [];
+		
+		// Token Class
+		var tokenClass = [
+							 // List of tokens and atributes
+							 {"Id":0,  "isActive":false, "tokenDict":"Decade", 			  	"xPos":0, "yPos":0, "rotation":0},
+							 {"Id":1,  "isActive":false, "tokenDict":"Year", 		  		"xPos":0, "yPos":0, "rotation":0},
+							 {"Id":2,  "isActive":false, "tokenDict":"Month",				"xPos":0, "yPos":0, "rotation":0},
+							 {"Id":3,  "isActive":false, "tokenDict":"Issue",				"xPos":0, "yPos":0, "rotation":0},
+							 {"Id":4,  "isActive":false, "tokenDict":"Page Scroll",			"xPos":0, "yPos":0, "rotation":0},
+							 {"Id":5,  "isActive":false, "tokenDict":"Manufacturing",		"xPos":0, "yPos":0, "rotation":0}
+						 ];
+	
+	
+		$(function() {
+            var client = new Tuio.Client({
+                host: "http://localhost:5000"
+            }),
+            screenW = $(document).width(),
+            screenH = $(document).height()
+
+            onConnect = function() {
+                console.log("onConnect");
+            },
+
+			///////////////
+			// Add Token //
+			///////////////
+			onAddTuioObject = function(addObject) {
+				var tokenID = addObject.symbolId;
+				var tokenX = addObject.xPos;
+				var tokenY = addObject.yPos;
+				var tokenRotation = addObject.angle;
+				console.log("Token added " + tokenID);
+				
+				// Update tokenClass
+				tokenClass[tokenID].isActive = true;
+				tokenClass[tokenID].xPos = addObject.xPos;
+				tokenClass[tokenID].yPos = addObject.yPos;
+				tokenClass[tokenID].rotation = addObject.angle;
+				// Add Id to array
+				activeTokens.push(tokenID);
+				console.log(activeTokens);
+			},
+
+            //////////////////
+			// Update Token //
+			//////////////////
+			onUpdateTuioObject = function(updateObject) {
+				//console.log(updateObject);
+				var tokenID = updateObject.symbolId;
+				var tokenX = updateObject.xPos;
+				var tokenY = updateObject.yPos;
+				var tokenRotation = updateObject.angle;
+				
+				
+				// Decade slider
+				if (tokenID == 0){
+					var valX = Math.floor(tokenX * 10);
+					for(i=0; i<10; i++){
+						if (valX == i){
+							console.log(i+192);
+				}}}
+				// Year slider
+				if (tokenID == 1){
+					var valX = Math.floor(tokenX * 10);
+					for(i=0; i<10; i++){
+						if (valX == i){
+							console.log(i);
+				}}}
+				// Month slider
+				if (tokenID == 2){
+					var valX = Math.floor(tokenX * 13);
+					for(i=0; i<13; i++){
+						if (valX == i){
+							console.log(i);
+				}}}
+				
+				
+				// Update tokenClass
+				tokenClass[tokenID].xPos = updateObject.xPos;
+				tokenClass[tokenID].yPos = updateObject.YPos;
+				tokenClass[tokenID].rotation = updateObject.angle;
+			},
+
+            //////////////////
+			// Remove Token //
+			//////////////////
+			onRemoveTuioObject = function(removeObject) {
+				var tokenID = removeObject.symbolId;
+				var tokenX = removeObject.xPos;
+				var tokenY = removeObject.yPos;
+				var tokenRotation = removeObject.angle;
+				console.log("Token removed " + tokenID);
+				
+				// Update tokenClass
+				tokenClass[tokenID].isActive = false;
+				tokenClass[tokenID].xPos = 0;
+				tokenClass[tokenID].yPos = 0;
+				tokenClass[tokenID].rotation = 0;
+				
+				// Remove Id from array
+				var index = activeTokens.indexOf(removeObject.symbolId);
+				activeTokens.splice(index, 1);
+				console.log(activeTokens);
+			},
+
+            onRefresh = function(time) {
+                
+            };
+
+            client.on("connect", onConnect);
+            client.on("addTuioObject", onAddTuioObject);
+            client.on("updateTuioObject", onUpdateTuioObject);
+            client.on("removeTuioObject", onRemoveTuioObject);
+            client.on("refresh", onRefresh);
+            client.connect();
+        });
+				
+    </script>
+	
+</head>
+
+<body>
+</body>
+
+</html>
