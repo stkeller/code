@@ -14,13 +14,11 @@
                 font-family: 'Inter', sans-serif;
                 font-size: 16px;
             }
-
             .container {
 			  position: relative;
 			  text-align: center;
 			  color: white;
 			}
-
 			.centered {
 				position: absolute;
 				top: 60vh;
@@ -29,14 +27,12 @@
 				z-index: 1050;
 				line-height: 0.8px;
 			}
-
 			.rightside {
 				position: absolute;
 				top: 32vh;
 				right: 25%;
 				z-index: 1050;
 			}
-
 			.bottom {
 				position: absolute;
 				top: 87vh;
@@ -44,19 +40,16 @@
 				transform: translate(-50%, -50%);
 				z-index: 1050;
 			}
-
             #canvas {
 				position: fixed;
-                width: 100%;
-                height: 100%;
-                touch-action: none;
+                		width: 100%;
+                		height: 100%;
+                		touch-action: none;
 				background: transparent;
             }		
-
             h1{
             	font-size: 16rem;
             }
-
             h2{
             	font-size: 50px;
             }
@@ -66,9 +59,8 @@
             	font-weight: 400;
             	letter-spacing: 10px;
             }
-
         </style>
-		
+	    
 	</head>
 	<body  bgcolor="black">
 		<div class="container">
@@ -81,13 +73,11 @@
 		  <div class="bottom">
 		  	<h3>about lighting?</h3>
 		  </div>
-
 		</div>
 		<canvas id="canvas" touch-action="none"></canvas>
         <script src="js/babylon.js"></script>
         <script src="js/babylonjs.loaders.min.js"></script>
         <script src="js/pep.js"></script>
-	
 		<script>		
 			var canvas = document.getElementById('canvas');
 			var engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer: true, stencil: true});
@@ -292,7 +282,5 @@
 				engine.resize();
 			});
 		</script>
-		
-		
 	</body>
 </html>
