@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
+        <title>Moon</title>
+        <style>
+            html, body {
+                overflow: visible;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                font-family: 'Inter', sans-serif;
+                font-size: 16px;
+            }
+
+            .container {
+			  position: relative;
+			  text-align: center;
+			  color: white;
+			}
+
+			.centered {
+				position: absolute;
+				top: 60vh;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				z-index: 1050;
+				line-height: 0.8px;
+			}
+
+			.rightside {
+				position: absolute;
+				top: 32vh;
+				right: 25%;
+				z-index: 1050;
+			}
+
+			.bottom {
+				position: absolute;
+				top: 87vh;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				z-index: 1050;
+			}
+
+            #canvas {
+				position: fixed;
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+				background: transparent;
+            }		
+
+            h1{
+            	font-size: 16rem;
+            }
+
+            h2{
+            	font-size: 50px;
+            }
+            h3{
+            	font-size: 24px;
+            	text-transform: uppercase;
+            	font-weight: 400;
+            	letter-spacing: 10px;
+            }
+
+        </style>
+		
+	</head>
+	<body  bgcolor="black">
+		<div class="container">
+		  <div class="rightside">
+		  	<h2>Do you</h2>
+		  </div>
+		  <div class="centered">
+		  	<h1>dream</h1>
+		  </div>
+		  <div class="bottom">
+		  	<h3>about lighting?</h3>
+		  </div>
+
+		</div>
+		<canvas id="canvas" touch-action="none"></canvas>
+        <script src="js/babylon.js"></script>
+        <script src="js/babylonjs.loaders.min.js"></script>
+        <script src="js/pep.js"></script>
+	
+		<script>		
+			var canvas = document.getElementById('canvas');
+			var engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer: true, stencil: true});
+			
+			// Loading Screen
+			BABYLON.DefaultLoadingScreen.prototype.displayLoadingUI = function () {
+				if (this._loadingDiv) {
+					return;
+				}
+				this._loadingDiv = document.createElement("div");
+				this._loadingDiv.id = "babylonjsLoadingDiv";
+				this._loadingDiv.style.opacity = "0";
+				this._loadingDiv.style.transition = "opacity 1.5s ease";
+				this._loadingDiv.style.pointerEvents = "none";
+
+				var imgBack = new Image();
+				imgBack.src = "assets/logo.png";
+				imgBack.style.position = "absolute";
+				imgBack.style.left = "34%";
+				imgBack.style.top = "18%";
+				this._loadingDiv.appendChild(imgBack);
+				this._resizeLoadingUI();
+				window.addEventListener("resize", this._resizeLoadingUI);
+				this._loadingDiv.style.backgroundColor = this._loadingDivBackgroundColor;
+				document.body.appendChild(this._loadingDiv);
+				this._loadingDiv.style.opacity = "1";
+			};
+			
+			var createScene = function(){
+				var scene = new BABYLON.Scene(engine);
+				scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+								
+				////////////////////
+				// Moon
+				var moon = BABYLON.Mesh.CreateSphere('sphere1', 24, 2, scene, false);
+				moon.rotation.x = 0.2;
+				moon.rotation.y = 1.2;
+				var moonMat = new BABYLON.StandardMaterial("moonMat", scene);
+				moonMat.diffuseTexture = new BABYLON.Texture("assets/moon.jpg", scene);
+				moonMat.bumpTexture = new BABYLON.Texture("assets/normalMap.jpg", scene);
+				moonMat.specularTexture = new BABYLON.Texture("assets/specularMap.jpg", scene);
+				moonMat.maxSimultaneousLights = 16;
+				moon.material = moonMat;
+				// Earth
+				var earth = BABYLON.Mesh.CreateSphere('sphere1', 12, 1, scene, false);
+				earth.rotation.x = 0.5;
+				scene.registerBeforeRender(function() {earth.rotation.y += 0.005;});
+				earth.rotation.z = Math.PI;
+				earth.position = new BABYLON.Vector3(-8,-3,16);
+				var earthMat = new BABYLON.StandardMaterial("moonMat", scene);
+				earthMat.maxSimultaneousLights = 2;
+				earthMat.specularColor = new BABYLON.Color3(0.05, 0.05, 0.05);
+				earthMat.diffuseTexture = new BABYLON.Texture("assets/earth.jpg", scene);
+				earth.material = earthMat;
+				/////////////////////
+				// Stage
+				var assetsManager = new BABYLON.AssetsManager(scene);
+				var stage = assetsManager.addMeshTask("stage", "", "assets/", "stageLP.obj");
+				stage.onSuccess = function (task) {
+					var stageScale = 0.001; 
+				    task.loadedMeshes[0].scaling = new BABYLON.Vector3(stageScale,stageScale,stageScale);
+					task.loadedMeshes[0].position.x = .721;
+					task.loadedMeshes[0].position.z = -0.7;
+					task.loadedMeshes[0].rotation.y = 0.7;
+					task.loadedMeshes[0].rotation.z = -1.6;
+				}
+				assetsManager.load();
+				// Lights Circle
+				var lightCircleMat = new BABYLON.StandardMaterial("material", scene);
+				var lightCircleTexture = new BABYLON.VideoTexture("video", ["assets/circles.mp4"], scene, true, true);
+				lightCircleMat.emissiveTexture = lightCircleTexture;
+				
+				var lightCircleDISC = BABYLON.MeshBuilder.CreateDisc("lightCircleDISC", {radius: .06, tessellation: 18, sideOrientation: 1}, scene);
+				lightCircleDISC.position = new BABYLON.Vector3(0.75,0,-0.75);
+				lightCircleDISC.rotation.y = 0.6;
+				lightCircleDISC.material = lightCircleMat;
+				// Lights Line
+				var lightLineMat = new BABYLON.StandardMaterial("material", scene);
+				var lightLineTexture = new BABYLON.VideoTexture("video", ["assets/lines.mp4"], scene, true, true);
+				lightLineMat.emissiveTexture = lightLineTexture;
+				
+				var lineMult = 75;
+				var lightLineBOX = BABYLON.MeshBuilder.CreatePlane("lightLineBOX", {width: 12.4/lineMult, height: 0.55/lineMult, sideOrientation: 1}, scene);
+				lightLineBOX.position = new BABYLON.Vector3(0.8,0.08,-0.68);
+				lightLineBOX.rotation.y = 0.6;
+				lightLineBOX.material = lightLineMat;
+				var lightLineBOX2 = BABYLON.MeshBuilder.CreatePlane("lightLineBOX2", {width: 12.4/lineMult, height: 0.55/lineMult, sideOrientation: 1}, scene);
+				lightLineBOX2.position = new BABYLON.Vector3(0.8,-0.08,-0.68);
+				lightLineBOX2.rotation.y = 0.6;
+				lightLineBOX2.material = lightLineMat;
+				var lightLineBOX3 = BABYLON.MeshBuilder.CreatePlane("lightLineBOX3", {width: 12.4/lineMult, height: 0.55/lineMult, sideOrientation: 1}, scene);
+				lightLineBOX3.position = new BABYLON.Vector3(0.8,-0.13,-0.62);
+				lightLineBOX3.rotation.y = 0.6;
+				lightLineBOX3.material = lightLineMat;
+				var lightLineBOX4 = BABYLON.MeshBuilder.CreatePlane("lightLineBOX3", {width: 12.4/lineMult, height: 0.55/lineMult, sideOrientation: 1}, scene);
+				lightLineBOX4.position = new BABYLON.Vector3(0.8,0.13,-0.62);
+				lightLineBOX4.rotation.y = 0.6;
+				lightLineBOX4.material = lightLineMat;
+				
+				scene.onPointerDown = function() {lightCircleTexture.video.play();
+												    lightLineTexture.video.play();}
+				/////////////////////
+				// Stars (Background)
+				var env = BABYLON.Mesh.CreateSphere('sphere1', 12, 60, scene, false);
+				env.rotation.x = 2.0;
+				env.rotation.y = 4.3;
+				var envMat = new BABYLON.StandardMaterial("envMat", scene);
+				envMat.emissiveTexture = new BABYLON.Texture("assets/stars.jpg", scene);
+				envMat.backFaceCulling = false;
+				envMat.disableLighting = true;
+				env.material = envMat;
+				
+				////////////////////
+				// Camera
+				var camera = new BABYLON.ArcRotateCamera("ArcRotateCamera", 2.8, 2.0, 3, new BABYLON.Vector3(0, 0, 0), scene);
+				camera.attachControl(canvas, true);
+				camera.lowerRadiusLimit = 3;
+				camera.upperRadiusLimit = 5;
+				camera.pinchDeltaPercentage = 0.01;
+				camera.wheelDeltaPercentage = 0.006;
+				camera.panningSensibility = 0;
+				
+				
+				////////////////////
+				// Light
+				var lightAmb = new BABYLON.PointLight('lightAmb', new BABYLON.Vector3(10, 0, -2), scene);
+				var light = new BABYLON.PointLight("light", new BABYLON.Vector3(-15, 0, 0), scene);
+				light.intensity = .9;
+				lightAmb.intensity = .05;
+				// Stage Lights
+				var lightStage1 = new BABYLON.PointLight("lightStage1", new BABYLON.Vector3(1.1, 0.3, -0.55), scene);
+				var lightStage2 = new BABYLON.PointLight("lightStage2", new BABYLON.Vector3(1.1, -0.3, -0.55), scene);
+				var lightStage3 = new BABYLON.PointLight("lightStage3", new BABYLON.Vector3(0.8, 0, -0.7), scene);
+				lightStage1.diffuse = new BABYLON.Color3(0.4, 0.4, 0.8);
+				lightStage2.diffuse = new BABYLON.Color3(0.8, 0.4, 0.4);
+				lightStage3.diffuse = new BABYLON.Color3(1, 1, 1);
+				lightStage3.intensity = 1.5;
+				// Stage Light Animation
+				var animationLight1 = new BABYLON.Animation("animationLight1", "intensity", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+				var animationLight2 = new BABYLON.Animation("animationLight2", "intensity", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+				var keys1 = []; 
+				keys1.push({frame: 0, value: .12});
+				keys1.push({frame: 11, value: .6});
+				var keys2 = []; 
+				keys2.push({frame: 0, value: .12});
+				keys2.push({frame: 8, value: .6});
+				
+				animationLight1.setKeys(keys1);
+				lightStage1.animations.push(animationLight1);
+				animationLight2.setKeys(keys2);
+				lightStage2.animations.push(animationLight2);
+				
+				scene.beginAnimation(lightStage1, 0, 100, true);
+				scene.beginAnimation(lightStage2, 0, 100, true);	
+				
+				// Stage SpotLight
+				//1
+				var lightSpot1 = new BABYLON.SpotLight("spotLight", new BABYLON.Vector3(1, 0, -0.4), new BABYLON.Vector3(-1, 0, 0), Math.PI / 3, 2, scene);
+				lightSpot1.diffuse = new BABYLON.Color3(0.85, 0.25, 0.2);
+				var animationSpot1 = new BABYLON.Animation("animationSpot1", "direction.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+				var keysSpot1 = []; 
+				keysSpot1.push({frame: 0, value: 0});
+				keysSpot1.push({frame: 20, value: 1});
+				keysSpot1.push({frame: 45, value: 0});
+				animationSpot1.setKeys(keysSpot1);
+				lightSpot1.animations.push(animationSpot1);
+				scene.beginAnimation(lightSpot1, 0, 100, true);
+				//2
+				var lightSpot2 = new BABYLON.SpotLight("spotLight", new BABYLON.Vector3(1, 0, -0.4), new BABYLON.Vector3(-1, 0, 0), Math.PI / 3, 2, scene);
+				lightSpot2.diffuse = new BABYLON.Color3(0.25, 0.2, .85);
+				var animationSpot2 = new BABYLON.Animation("animationSpot1", "direction.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+				var keysSpot2 = []; 
+				keysSpot2.push({frame: 0, value: 0});
+				keysSpot2.push({frame: 28, value: -1});
+				keysSpot2.push({frame: 40, value: 0});
+				animationSpot2.setKeys(keysSpot2);
+				lightSpot2.animations.push(animationSpot2);
+				scene.beginAnimation(lightSpot2, 0, 100, true);
+				//3
+				var lightSpot3 = new BABYLON.SpotLight("spotLight", new BABYLON.Vector3(1, 0, -0.415), new BABYLON.Vector3(-1, 0, 0), Math.PI / 3, 2, scene);
+				lightSpot3.diffuse = new BABYLON.Color3(0.3, 0.65, 0.85);
+				var animationSpot3 = new BABYLON.Animation("animationSpot1", "direction.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+				var keysSpot3 = []; 
+				keysSpot3.push({frame: 0, value: 1});
+				keysSpot3.push({frame: 50, value: -1});
+				keysSpot3.push({frame: 100, value: 1});
+				animationSpot3.setKeys(keysSpot3);
+				lightSpot3.animations.push(animationSpot3);
+				scene.beginAnimation(lightSpot3, 0, 100, true);
+				
+				////////////////////
+				return scene;
+			}
+			var scene = createScene();
+			
+			// run the render loop
+			engine.runRenderLoop(function(){
+				scene.render();
+			});
+			// the canvas/window resize event handler
+			window.addEventListener('resize', function(){
+				engine.resize();
+			});
+		</script>
+		
+		
+	</body>
+</html>
